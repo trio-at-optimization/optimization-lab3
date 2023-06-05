@@ -80,3 +80,4 @@ svg-inkscape/
 *.idea
 *.trash
 *Test*.ipynb
+*Test*.py
