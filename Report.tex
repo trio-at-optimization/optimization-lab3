@@ -283,6 +283,7 @@
 		\end{align*} где $\rho_{k} = \dfrac{1}{y^{\mathrm{T}}_{k}s_{k}}$, $V_{k} = \mathbf{I} - \rho_{k}y_{k}s_{k}^{\mathrm{T}}$.
 		Из всего вышеописанного мы можем провести произведение $H_{k} \times \nabla{f_{k}}$ более эффективно следующим образом
 		\begin{lstlisting}
+$\alpha \gets$[0] * $\texttt{sizeof}~s$;
 $q \gets \nabla{f_{k}}$;
 $\forall i = k - 1, ~ k - 2, ~ \ldots, ~ k - m$ do
 	$\alpha_{i} \gets \rho_{i}s_{i}^{\mathrm{T}}q$;
@@ -293,7 +294,7 @@ $\forall i = k - m, ~ k - m + 1, ~ \ldots, ~ k - 1$ do
 	$\beta \gets \rho_{i}y_{i}^{\mathrm{T}}r$;
 	$r \gets r + s_i(\alpha_i - \beta)$;
 end
-return $r \equiv H_k \times \nabla{f_{k}}$;
+return $(-1) \cdot r \left\llbracket\equiv H_k \times \nabla{f_{k}}\right\rrbracket$;
 		\end{lstlisting}
 		Получение нового на данной итерации $H_{k}^{0}$ мы также сильно ускорим, лишь приблизив наши значения, используя формулу $H_{k}^{0} = \gamma_{k}\mathbf{I}$, где
 		\[
@@ -310,6 +311,7 @@ function $\mathtt{Wolfe\_coefficient}(f : \mathbb{R}^{n} \to \mathbb{R}, ~ p_{k}
 	/*$implementation~defined$*/
 
 function $\mathtt{get\_prod}(f : \mathbb{R}^{n} \to \mathbb{R})$:
+	$\alpha \gets$[0] * $\texttt{sizeof}~s$;
 	$q \gets \nabla{f_{k}}$;
 	$\forall i = k - 1, ~ k - 2, ~ \ldots, ~ k - m$ do
 		$\alpha_{i} \gets \rho_{i}s_{i}^{\mathrm{T}}q$;
@@ -320,12 +322,12 @@ function $\mathtt{get\_prod}(f : \mathbb{R}^{n} \to \mathbb{R})$:
 		$\beta \gets \rho_{i}y_{i}^{\mathrm{T}}r$;
 		$r \gets r + s_i(\alpha_i - \beta)$;
 	end
-	return $r \equiv H_k \times \nabla{f_{k}}$;
+	return $(-1) \cdot r \left\llbracket\equiv H_k \times \nabla{f_{k}}\right\rrbracket$;
 	
 function $\mathtt{LBFGS}()$:
 	$x_{0} \gets \mathbf{INIT}$;
 	$m \gets i \in [5, 10]$;
-	$q \gets []$
+	$q \gets$[]
 	while !$is\_convergence(f)$ do
 		$H_{k}^{0} \gets \left(\dfrac{s_{k - 1}^{\mathrm{T}}y_{k - 1}}{y_{k - 1}^{\mathrm{T}}y_{k - 1}}\right)\mathbf{I}$;
 		$p_{k} \gets get\_prod(f)$;
