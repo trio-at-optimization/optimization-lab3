@@ -35,6 +35,11 @@
 	urlcolor = pink
 }
 
+\lstset{
+	basicstyle = \ttfamily,
+	mathescape
+}
+
 \newtcblisting{mylisting}{
 	listing only,
 	breakable,
@@ -248,59 +253,93 @@
 	\section*{L-BFGS}
 	\textit{L-BFGS}, или BFGS с ограниченной памятью~-- это оптимизационный алгоритм, который аппроксимирует оригинальный алгоритм BFGS с использованием заданного ограниченного объема памяти.
 
-	L-BFGS как BFGS использует приближенную оценку Гессиана, при этом в явном виде посчитав только один раз, а все остальные шаги лишь преобразовывая.
-	Проблема: BFGS хранит всегда $n \times n$ приближение к обратному Гессиану.
-	Решение: хранить несколько векторов, которые неявно представляют приближение, представляющие из себя историю последних $m$ обновлений положения $\vec{x}$ и градиента $\nabla{f(\vec{x})}$.
+	L-BFGS как и BFGS использует приближенную оценку Гессиана, при этом в явном виде посчитав только один раз, а все остальные шаги лишь преобразовывая.
+	Проблема: BFGS хранит всегда $n \times n$ приближений к обратному Гессиану.
+	Решение: хранить несколько векторов, которые неявно представляют приближение, представляющие из себя историю последних $m$ обновлений положения $x$ и градиента $\nabla{f(x)}$.
 	При этом, $m$ обычно выбирается небольшим ($m < 10$).
 
 	Рассмотрим идею этого алгоритма.
 	Во многом она будет совпадать с предыдущим, поэтому пропустим обозначения и перейдем сразу алгоритму.
 	\begin{enumerate}[1)]
 		\setcounter{enumi}{-1}
-		\item Пусть $\mathbf{i}$~-- текущий номер итерации алгоритма, возьмем $g_{\mathbf{i}} = \nabla{f(x_{\mathbf{i}})}$.
-		\item Также находим точку, в направлении которой будем производить поиск:
+		\item Пусть $k$~-- текущий номер итерации алгоритма, здесь и далее будем иметь ввиду $g_{k} = \nabla{f(x_{k})}$.
+		\item Также как и в BFGS находим точку, в направлении которой будем производить поиск:
 		\[
-			p_{\mathbf{i}} = -H_{\mathbf{i}} \times \nabla{f_{\mathbf{i}}}
-		\]
+			p_{k} = -H_{k} \times \nabla{f_{k}},
+		\] здесь и далее $f_{k} = f(x_{k})$.
 		\item Пусть мы сохранили $m$ обновлений вида:
 		\begin{align*}
-			s_{\mathbf{i}} &= x_{\mathbf{i} + 1} - x_{\mathbf{i}} \\
-			y_{\mathbf{i}} &= g_{\mathbf{i} + 1} - g_{\mathbf{i}}
+			s_{k} &= x_{k + 1} - x_{k} \\
+			y_{k} &= g_{k + 1} - g_{k}
 		\end{align*}
-		\item Определим $\rho_{\mathbf{i}} = \dfrac{1}{y_{\mathbf{i}}^{\mathrm{T}}s_{\mathbf{i}}}$ и $H_{\mathbf{i}}^{0}$~-- <<начальная>> аппроксимация обратного гессиана, с которого начинается наша оценка на $\mathbf{i}$-ой итерации.
-		Теперь, наконец, основная оптимизация: мы хотим оптимизировать основную рекуррентную формулу.
-		\begin{itemize}
-			\item Для данного $\mathbf{i}$ определим $\{q_{\mathbf{i} - m}, ~ q_{\mathbf{i} - m + 1}, ~ \ldots, ~ q_{\mathbf{i}}\}$, где
-			\begin{align*}
-				q_{\mathbf{i}} &= g_{\mathbf{i}} \\
-				q_{i} &= \left(\mathbf{I} - \rho_{i}y_{i}s_{i}^{\mathrm{T}}\right)q_{i + 1} ~ \forall i \setminus \mathbf{i}
-			\end{align*}
-			\item Тогда рекурсивный алгоритм вычисления $q_{i}$ от $q_{i + 1}$ состоит в том, чтобы определить $\alpha_{i} \gets \rho_{i}s_{i}^{\mathrm{T}}q_{i + 1}$ и $q_{i} = q_{i + 1} - \alpha_{i}y_{i}$.
-			\item Определим также $\{z_{\mathbf{i} - m}, ~ z_{\mathbf{i} - m + 1}, ~ \ldots, ~ z_{\mathbf{i}}\}$, где $\forall i ~ z_{i} \gets H_{i}q_{i}$.
-			\subitem Существует еще один рекурсивный алгоритм вычисления этих векторов, который заключается в определении $z_{\mathbf{i} - m} \gets H_{\mathbf{i}}^{0}q_{\mathbf{i} - m}$, а затем рекурсивно определить $\beta_{i} \gets \rho_{i}y_{i}^{\mathrm{T}}z_{i}$ и $z_{i + 1} = z_{i} + (\alpha_{i} - \beta_{i})s_{i}$. Значение $z_{\mathbf{i}}$ тогда~-- наше направление восхождения.
-		\end{itemize}
-		Таким образом, мы можем вычислить направление спуска следующим образом:
-		\begin{mylisting}
-			$q \gets \nabla{f_{\mathbf{i}}}$;
-			for $i \in [\mathbf{i} - 1, ~ \mathbf{i} - 2, ~ \ldots, ~ \mathbf{i} - m]$ do
-				$\alpha \gets \rho_{i}s_{i}^{\mathrm{T}}q$;
-				$q \gets q - \alpha_{i}y_{i}$;
-			end (for)
-			$r \gets H_{\mathbf{i}}^{0}q$;
-			for $i \in [k - m, ~ k - m + 1, ~ \ldots, ~ k - 1]$ do
-				$\beta \gets \rho_{i}y_{i}^{\mathrm{T}}r$;
-				$r \gets r + s_{i}(\alpha_{i} - \beta)$;
-			end (for)
-			return $r \equiv H_{\mathbf{i}}\nabla{f_{\mathbf{i}}}$;
-		\end{mylisting}
-		\item Положим $H_{\mathbf{i}}^{0} = \gamma_{\mathbf{i}}\mathbf{I}$ следующим образом:
+		Заметим, что при последующих итерациях алгоритма $k \geqslant m$ произведение из первого шага можно получить выполнив последовательность скалярных произведений и суммирования векторов, включающую $\nabla{f_{k}}$ и пары $\{s_{i}, y_{i}\}$.
+		После вычисления новой итерации самая старая пара векторов в наборе пар $\{s_{i}, y_{i}\}$ заменяется новой парой, который получается из данного шага.
+		\item Наконец, пожалуй, самая идейная часть~-- обновление Гессиана.
+		На итерации $k$ у нас определен $x_{k}$ и пары $\{s_{i}, y_{i}\}~\forall i \in [k - m, ~ k - m + 1, ~ \ldots, ~ k - 1]$.
+		Выберем некоторое начальное Гессианское приближение $H_{k}^{0}$ (в отличие от стандартной итерации BFGS, это начальное приближение может меняться от итерации к итерации) и путем повторного применения формулы, заданной изначально в BFGS, получаем
+		\begin{align*}
+			H_{k} &= (V_{k - 1}^{\mathrm{T}} \cdot \ldots \cdot V_{k - 1}^{\mathrm{T}}) H_{k}^{0} (V_{k - m} \cdot \ldots \cdot V_{k - 1}) \\
+			&+ \rho_{k - m}(V_{k - 1}^{\mathrm{T}} \cdot \ldots \cdot V_{k - m + 1}^{\mathrm{T}})s_{k - m}s_{k - m}^{\mathrm{T}}(V_{k - m + 1} \cdot \ldots \cdot V_{k - 1}) \\
+			&+ \rho_{k - m + 1}(V_{k - 1}^{\mathrm{T}} \cdot \ldots \cdot V_{k - m + 2}^{\mathrm{T}})s_{k - m + 1}s_{k - m + 1}^{\mathrm{T}}(V_{k - m + 2} \cdot \ldots \cdot V_{k - 1}) \\
+			&+ \ldots \\
+			&+ \rho_{k - 1}s_{k - 1}s_{k - 1}^{\mathrm{T}},
+		\end{align*} где $\rho_{k} = \dfrac{1}{y^{\mathrm{T}}_{k}s_{k}}$, $V_{k} = \mathbf{I} - \rho_{k}y_{k}s_{k}^{\mathrm{T}}$.
+		Из всего вышеописанного мы можем провести произведение $H_{k} \times \nabla{f_{k}}$ более эффективно следующим образом
+		\begin{lstlisting}
+$q \gets \nabla{f_{k}}$;
+$\forall i = k - 1, ~ k - 2, ~ \ldots, ~ k - m$ do
+	$\alpha_{i} \gets \rho_{i}s_{i}^{\mathrm{T}}q$;
+	$q \gets q - \alpha_{i}y_{i}$;
+end
+$r \gets H_{k}^{0}q$;
+$\forall i = k - m, ~ k - m + 1, ~ \ldots, ~ k - 1$ do
+	$\beta \gets \rho_{i}y_{i}^{\mathrm{T}}r$;
+	$r \gets r + s_i(\alpha_i - \beta)$;
+end
+return $r \equiv H_k \times \nabla{f_{k}}$;
+		\end{lstlisting}
+		Получение нового на данной итерации $H_{k}^{0}$ мы также сильно ускорим, лишь приблизив наши значения, используя формулу $H_{k}^{0} = \gamma_{k}\mathbf{I}$, где
 		\[
-			\gamma_{\mathbf{i}} = \dfrac{s_{\mathbf{i} - 1}^{\mathrm{T}}y_{\mathbf{i} - 1}}{y_{\mathbf{i} - 1}^{\mathrm{T}}y_{\mathbf{i} - 1}}
+			\gamma_{k} = \dfrac{s_{k - 1}^{\mathrm{T}}y_{k - 1}}{y_{k - 1}^{\mathrm{T}}y_{k - 1}}
 		\]
+		\item Все последующие шаги аналогичны с оригинальным BFGS.
 	\end{enumerate}
-	% TODO: доделать.
-	% TODO: исправить, отрефакторить.
-	% TODO: добавить идейный псевдокод к задаче.
+	Итак, напишем идейный псевдокод алгоритма L-BFGS.
+	\begin{mylisting}
+function $\mathtt{is\_convergence}(f : \mathbb{R}^{n} \to \mathbb{R})$:
+	/*$implementation~defined$*/
+
+function $\mathtt{Wolfe\_coefficient}(f : \mathbb{R}^{n} \to \mathbb{R}, ~ p_{k})$:
+	/*$implementation~defined$*/
+
+function $\mathtt{get\_prod}(f : \mathbb{R}^{n} \to \mathbb{R})$:
+	$q \gets \nabla{f_{k}}$;
+	$\forall i = k - 1, ~ k - 2, ~ \ldots, ~ k - m$ do
+		$\alpha_{i} \gets \rho_{i}s_{i}^{\mathrm{T}}q$;
+		$q \gets q - \alpha_{i}y_{i}$;
+	end
+	$r \gets H_{k}^{0}q$;
+	$\forall i = k - m, ~ k - m + 1, ~ \ldots, ~ k - 1$ do
+		$\beta \gets \rho_{i}y_{i}^{\mathrm{T}}r$;
+		$r \gets r + s_i(\alpha_i - \beta)$;
+	end
+	return $r \equiv H_k \times \nabla{f_{k}}$;
+	
+function $\mathtt{LBFGS}()$:
+	$x_{0} \gets \mathbf{INIT}$;
+	$m \gets i \in [5, 10]$;
+	$q \gets []$
+	while !$is\_convergence(f)$ do
+		$H_{k}^{0} \gets \left(\dfrac{s_{k - 1}^{\mathrm{T}}y_{k - 1}}{y_{k - 1}^{\mathrm{T}}y_{k - 1}}\right)\mathbf{I}$;
+		$p_{k} \gets get\_prod(f)$;
+		$\alpha_{k} \gets Wolfe\_coefficient(f, ~ p_{k})$;
+		$x_{k + 1} \gets x_{k} + \alpha_{k}p_{k}$
+		if $k > m$ then
+			q.remove($\{s_{k - m}, y_{k - m}\}$);
+		$s_{k} \gets x_{k + 1} - x_{k}$;
+		$y_{k} \gets \nabla{f_{k + 1}} - \nabla{f_{k}}$;
+		q.append($\{x_{k}, y_{k}\}$);
+	\end{mylisting}
 	\subsection*{Исследования}
 	% TODO: добавить исследования для L-BFGS.
 \end{document}
