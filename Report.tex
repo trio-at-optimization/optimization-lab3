@@ -115,26 +115,27 @@
 	Однако, решая в лоб такую задачу, мы сталкиваемся с оптимизационной задачи нахождения параметров нелинейной регрессионной модели.
 	Тут к нам и приходят на помощь различные методы нахождения, в том числе и рассматриваемые ниже: \textit{Gauss-Newton} и \textit{Powell Dog Leg}.
 	\subsection*{Gauss-Newton}
-	Напомним, что мы решаем следующую задачу: дана нелинейная модель $f(w, x)$, где $w \in \mathbb{R}^{n}$, тогда сумма квадратов регрессионных остатков высчитывается как
+	Напомним, что мы решаем следующую задачу: дана нелинейная модель $f(w, x)$, где $w \in \mathbb{R}^{m}$, тогда сумма квадратов регрессионных остатков высчитывается как
 	\[
 		S = \sum\limits_{i = 1}^{\texttt{sizeof}~X}{(f(w, x_{i}) - y_{i})^2} \to \mathrm{min}
 	\]
-	Итак, теперь введем некоторые новые объекты для решения задачи, пусть $w^{0} = (w_{0}^{0}, ~ w_{1}^{0}, ~ \ldots, ~ w^{t}_{p})$~-- начальное приближение, и
+	Итак, пусть $n = \texttt{sizeof}~X$ и введем некоторые новые объекты для решения задачи, пусть $w^{0} = (w_{0}^{0}, ~ w_{1}^{0}, ~ \ldots, ~ w^{0}_{m})$~-- начальное приближение, и
 	\begin{align*}
-		\gimel &= \left(\dfrac{\partial{f}}{\partial{w_{j}}}{(w^{t}, x_{i})}\right)_{(\texttt{sizeof}~X) \times p}~-~\text{Якобиан, или матрица первых производных} \\
-		\vec{f_{t}} &= \left(f(w^{t}, x_{i})\right)_{(\texttt{sizeof}~X) \times 1}~-~\text{вектор значений}~f \\
-		\eth_{t} &= \texttt{const}~-~\text{размера шага}
+		\gimel &= \left(\dfrac{\partial{f}}{\partial{w_{j}}}{(w^{\mathbf{i}}, x_{i})}\right)_{n \times m}~-~\text{Якобиан, или матрица первых производных} \\
+		\vec{f_{\mathbf{i}}} &= \left(f(w^{\mathbf{i}}, x_{i})\right)_{n \times 1}~-~\text{вектор значений функции}~f \\
+		\eth_{\mathbf{i}} &= \texttt{const}~-~\text{размера шага}
 	\end{align*}
-	Тогда, формула $t$-й итерации рассматриваемого метода будет высчитываться как
+	Тогда, формула $\mathbf{i}$-й итерации рассматриваемого метода будет высчитываться как
 	\[
-		w^{t + 1} \gets w^{t} - \eth_{t} \cdot \underbrace{\left(\gimel^{\mathrm{T}}_{t}\gimel_{t}\right)^{-1}\gimel_{t}^{\mathrm{T}}}_{\Psi}(\vec{f_{t}} - y),
-	\] где $\Psi$~-- это псевдообратная матрица, или решение некоторой задачи многомерной линейной регрессии, где мы ищем такой вектор $\Psi$, что
+		w^{\mathbf{i} + 1} \gets w^{\mathbf{i}} - \eth_{\mathbf{i}} \cdot \underbrace{\left(\gimel^{\mathrm{T}}_{\mathbf{i}}\gimel_{\mathbf{i}}\right)^{-1}\gimel_{\mathbf{i}}^{\mathrm{T}}}_{\beta}(\vec{f_{\mathbf{i}}} - y),
+	\] где $\beta$~-- это псевдообратная матрица к матрице $\gimel_{\mathbf{i}}$, или решение некоторой задачи многомерной линейной регрессии, где мы ищем такой вектор $\beta$, что
 	\[
-		\left\|\gimel_{t}\Psi - (\vec{f_{t}} - y)\right\|^{2} \to \mathrm{min},
+		\left\|\gimel_{\mathbf{i}}\beta - (\vec{f_{\mathbf{i}}} - y)\right\|^{2} \to \mathrm{min},
 	\] где $y$~-- вектор правильных/настоящих ответов нашей модели.
-	Получается, для решения задачи, мы, так называемую, \textit{невязку} пытаемся приблизить линейной комбинацией вектора из матрицы Якобиана так, что при следующем шаге итерации получить такой $w^{t + 1}$, который бы сократил нам расстояние невязки.
-	Причем, заметим, что на каждом шаге, задача будет новой, так как $\gimel_{t}$ зависит от текущего приближения, чтобы решить задачу многомерной регрессии.
-	% TODO: надо ли ещё информации?
+	Получается, для решения задачи, мы, так называемую, \textit{невязку} пытаемся приблизить линейной комбинацией вектора из матрицы Якобиана так, что при следующем шаге итерации получить такой $w^{\mathbf{i} + 1}$, который бы сократил нам расстояние невязки.
+	Причем, заметим, что на каждом шаге, задача будет новой, так как $\gimel_{\mathbf{i}}$ зависит от текущего приближения, чтобы решить задачу многомерной регрессии.
+
+	Заметим, что здесь, по алгоритму, мы видим достаточно очевидное ограничение: $m \geqslant n$, в ином случае для $\gimel_{\mathbf{i}}^{\mathrm{T}}\gimel_{\mathbf{i}}$ не будет существовать обратной матрицы и, в следствии, решения к уравнению.
 	\subsubsection*{Исследования}
 	% TODO: добавить исследования из T1.ipynb
 	\subsection*{Powell Dog Leg}
@@ -193,42 +194,46 @@
 	Во многом она будет совпадать с предыдущим, поэтому пропустим обозначения и перейдем сразу алгоритму.
 	\begin{enumerate}[1)]
 		\setcounter{enumi}{-1}
-		\item Пусть $i$~-- текущий номер итерации алгоритма, возьмем $g_{i} = \nabla{f(x_{i})}$.
+		\item Пусть $\mathbf{i}$~-- текущий номер итерации алгоритма, возьмем $g_{\mathbf{i}} = \nabla{f(x_{\mathbf{i}})}$.
 		\item Также находим точку, в направлении которой будем производить поиск:
 		\[
-			p_{i} = -H_{i} \times \nabla{f_{i}}
+			p_{\mathbf{i}} = -H_{\mathbf{i}} \times \nabla{f_{\mathbf{i}}}
 		\]
 		\item Пусть мы сохранили $m$ обновлений вида:
 		\begin{align*}
-			s_{i} &= x_{i + 1} - x_{i} \\
-			y_{i} &= g_{i + 1} - g_{i}
+			s_{\mathbf{i}} &= x_{\mathbf{i} + 1} - x_{\mathbf{i}} \\
+			y_{\mathbf{i}} &= g_{\mathbf{i} + 1} - g_{\mathbf{i}}
 		\end{align*}
-		\item Определим $\rho_{i} = \dfrac{1}{y_{i}^{\mathrm{T}}s_{i}}$ и $H_{i}^{0}$~-- <<начальная>> аппроксимация обратного гессиана, с которого начинается наша оценка на $i$-ой итерации.
+		\item Определим $\rho_{\mathbf{i}} = \dfrac{1}{y_{\mathbf{i}}^{\mathrm{T}}s_{\mathbf{i}}}$ и $H_{\mathbf{i}}^{0}$~-- <<начальная>> аппроксимация обратного гессиана, с которого начинается наша оценка на $\mathbf{i}$-ой итерации.
 		Теперь, наконец, основная оптимизация: мы хотим оптимизировать основную рекуррентную формулу.
 		\begin{itemize}
-			\item Для данного $i$ определим $\{q_{i - m}, ~ q_{i - m + 1}, ~ \ldots, ~ q_{i}\}$, где
+			\item Для данного $\mathbf{i}$ определим $\{q_{\mathbf{i} - m}, ~ q_{\mathbf{i} - m + 1}, ~ \ldots, ~ q_{\mathbf{i}}\}$, где
 			\begin{align*}
-				q_{i} &= g_{i} \\
-				q_{j} &= \left(\mathbf{I} - \rho_{j}y_{j}s_{j}^{\mathrm{T}}\right)q_{j + 1} ~ \forall j \setminus i
+				q_{\mathbf{i}} &= g_{\mathbf{i}} \\
+				q_{i} &= \left(\mathbf{I} - \rho_{i}y_{i}s_{i}^{\mathrm{T}}\right)q_{i + 1} ~ \forall i \setminus \mathbf{i}
 			\end{align*}
-			\item Тогда рекурсивный алгоритм вычисления $q_{j}$ от $q_{j + 1}$ состоит в том, чтобы определить $\alpha_{j} \gets \rho_{j}s_{j}^{\mathrm{T}}q_{j + 1}$ и $q_{j} = q_{j + 1} - \alpha_{j}y_{j}$.
-			\item Определим также $\{z_{i - m}, ~ z_{i - m + 1}, ~ \ldots, ~ z_{i}\}$, где $\forall j ~ z_{j} \gets H_{j}q_{j}$.
-			\subitem Существует еще один рекурсивный алгоритм вычисления этих векторов, который заключается в определении $z_{i - m} \gets H_{i}^{0}q_{i - m}$, а затем рекурсивно определить $\beta_{j} \gets \rho_{j}y_{j}^{\mathrm{T}}z_{j}$ и $z_{j + 1} = z_{j} + (\alpha_{j} - \beta_{j})s_{j}$. Значение $z_{i}$ тогда~-- наше направление восхождения.
+			\item Тогда рекурсивный алгоритм вычисления $q_{i}$ от $q_{i + 1}$ состоит в том, чтобы определить $\alpha_{i} \gets \rho_{i}s_{i}^{\mathrm{T}}q_{i + 1}$ и $q_{i} = q_{i + 1} - \alpha_{i}y_{i}$.
+			\item Определим также $\{z_{\mathbf{i} - m}, ~ z_{\mathbf{i} - m + 1}, ~ \ldots, ~ z_{\mathbf{i}}\}$, где $\forall i ~ z_{i} \gets H_{i}q_{i}$.
+			\subitem Существует еще один рекурсивный алгоритм вычисления этих векторов, который заключается в определении $z_{\mathbf{i} - m} \gets H_{\mathbf{i}}^{0}q_{\mathbf{i} - m}$, а затем рекурсивно определить $\beta_{i} \gets \rho_{i}y_{i}^{\mathrm{T}}z_{i}$ и $z_{i + 1} = z_{i} + (\alpha_{i} - \beta_{i})s_{i}$. Значение $z_{\mathbf{i}}$ тогда~-- наше направление восхождения.
 		\end{itemize}
 		Таким образом, мы можем вычислить направление спуска следующим образом:
 		\begin{mylisting}
-			$q \gets g_{i}$
-			for $j \gets i - 1, ~ \ldots, ~ i - m$ do
-				$\alpha_{j} \gets \rho_{j}s_{j}^{\mathrm{T}}q$
-				$q \gets q - \alpha_{j}y_{j}$
-			$\gamma_{i} \gets \dfrac{s_{i - 1}^{\mathrm{T}}y_{i - 1}}{y^{\mathrm{T}}_{i - 1}y_{i - 1}}$
-			$H_{i}^{0} \gets \gamma_{i}\mathbf{I}$
-			$z \gets H_{i}^{0}q$
-			for $j \gets i - m, ~ \ldots, ~ i - 1$ do
-				$\beta_{j} \gets \rho_{j}y_{j}^{\mathrm{T}}z$
-				$z \gets z + s_{j}(\alpha_{j} - \beta_{j})$
-			$z \gets -z$
+			$q \gets \nabla{f_{\mathbf{i}}}$;
+			for $i \in [\mathbf{i} - 1, ~ \mathbf{i} - 2, ~ \ldots, ~ \mathbf{i} - m]$ do
+				$\alpha \gets \rho_{i}s_{i}^{\mathrm{T}}q$;
+				$q \gets q - \alpha_{i}y_{i}$;
+			end (for)
+			$r \gets H_{\mathbf{i}}^{0}q$;
+			for $i \in [k - m, ~ k - m + 1, ~ \ldots, ~ k - 1]$ do
+				$\beta \gets \rho_{i}y_{i}^{\mathrm{T}}r$;
+				$r \gets r + s_{i}(\alpha_{i} - \beta)$;
+			end (for)
+			return $r \equiv H_{\mathbf{i}}\nabla{f_{\mathbf{i}}}$;
 		\end{mylisting}
+		\item Положим $H_{\mathbf{i}}^{0} = \gamma_{\mathbf{i}}\mathbf{I}$ следующим образом:
+		\[
+			\gamma_{\mathbf{i}} = \dfrac{s_{\mathbf{i} - 1}^{\mathrm{T}}y_{\mathbf{i} - 1}}{y_{\mathbf{i} - 1}^{\mathrm{T}}y_{\mathbf{i} - 1}}
+		\]
 	\end{enumerate}
 	% TODO: добавить больше информации.
 	\subsection*{Исследования}
