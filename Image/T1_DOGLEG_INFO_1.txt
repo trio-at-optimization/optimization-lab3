@@ -1,0 +1,2 @@
+initial_w = [3, 4]
+Powell Dog Leg  ==>  24.179801 in [  1.997871,   2.987030] in 38 steps.
