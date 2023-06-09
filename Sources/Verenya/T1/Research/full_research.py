@@ -14,6 +14,7 @@ script_path = 'one_thread_research.py'
 dataset_filename = "sin(w[0]x + w[1]) weights=[2. 3.] density=8000 dots_count=1000 radius=0.1 dist=2.5 test_count=10.txt"
 test_count = 10
 
+
 def research_thread(num_thread, result_filename, filename_part):
 
     process = subprocess.Popen(['cmd', '/c', 'python', script_path
@@ -33,10 +34,15 @@ def research_thread(num_thread, result_filename, filename_part):
 def main():
     x = 2
     y = 3
-    init_dist_x = 50
-    init_dist_y = 0
-    init_density_x = 10001
-    init_density_y = 1
+    init_dist_x = 0
+    init_dist_y = 50
+    init_density_x = 1
+    init_density_y = 10001
+    label = 'gauss-newton '
+    label += 'init_dist_x=' + str(init_dist_x) + ' '
+    label += 'init_dist_y=' + str(init_dist_y) + ' '
+    label += 'init_density_x=' + str(init_density_x) + ' '
+    label += 'init_density_y=' + str(init_density_y) + ' '
 
     start = time.perf_counter()
     print(f'Start Research')
@@ -80,7 +86,7 @@ def main():
         os.remove(file_path)
 
     results = np.concatenate((*results,))
-    helper.save_matrix(results, 'result ' + dataset_filename)
+    helper.save_matrix(results, 'result ' + label + dataset_filename)
 
     finish = time.perf_counter()
     print(f'It took {finish - start: .2f} second(s) to finish')
