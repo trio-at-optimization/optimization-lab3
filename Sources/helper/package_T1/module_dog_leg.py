@@ -5,33 +5,27 @@ import numpy as np
 from dataset_generator import Generator
 
 
-def func(X, Y, w, j):
+def func(f, X, Y, w, j):
     x = X[j]
-    f = Y[j]
+    value = Y[j]
 
-    return func_without_f(x, w) - f
-
-
-def func_without_f(x, w):
-    return_value = np.sin(w[0] * x + w[1])
-    return return_value
-    # return w[0] * np.sin(x ** 2) + np.cos(w[1] * x)
+    return f(x, w) - value
 
 
-def derivative(X, Y, w, i, j, delta=1e-6):
+def derivative(f, X, Y, w, i, j, delta=1e-6):
     w1 = np.copy(w)
     w2 = np.copy(w)
 
     w1[i] -= delta
     w2[i] += delta
 
-    obj1 = func(X, Y, w1, j)
-    obj2 = func(X, Y, w2, j)
+    obj1 = func(f, X, Y, w1, j)
+    obj2 = func(f, X, Y, w2, j)
 
     return (obj2 - obj1) / (2 * delta)
 
 
-def jacobian(X, Y, w):
+def jacobian(f, X, Y, w):
     rowNum = len(X)
     colNum = len(w)
 
@@ -39,7 +33,7 @@ def jacobian(X, Y, w):
 
     for i in range(rowNum):
         for j in range(colNum):
-            Jac[i][j] = derivative(X, Y, w, j, i)
+            Jac[i][j] = derivative(f, X, Y, w, j, i)
 
     return Jac
 
@@ -48,7 +42,7 @@ def dog_leg(f, X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-
     current_params = np.copy(initial_params)
 
     obj = f(X, current_params) - Y
-    Jac = jacobian(X, Y, current_params)
+    Jac = jacobian(f, X, Y, current_params)
     gradient = Jac.T @ obj
 
     if np.linalg.norm(obj) <= e3 or np.linalg.norm(gradient) <= e1:
@@ -56,7 +50,7 @@ def dog_leg(f, X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-
 
     for iteration in range(max_iter):
         obj = f(X, current_params) - Y
-        Jac = jacobian(X, Y, current_params)
+        Jac = jacobian(f, X, Y, current_params)
         gradient = Jac.T @ obj
 
         if np.linalg.norm(gradient) <= e1:
