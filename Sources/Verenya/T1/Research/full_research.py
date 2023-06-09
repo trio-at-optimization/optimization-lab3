@@ -9,16 +9,11 @@ from multiprocessing import cpu_count
 sys.path.append('../../../')
 import helper
 
-count_threads = max(cpu_count() - 2, 1)
-script_path = 'one_thread_research.py'
-dataset_filename = "sin(w[0]x + w[1]) weights=[2. 3.] density=8000 dots_count=1000 radius=0.1 dist=2.5 test_count=10.txt"
-test_count = 10
-
-
-def research_thread(num_thread, result_filename, filename_part):
+def research_thread(num_thread, script_path, dataset_filename, method, result_filename, filename_part):
 
     process = subprocess.Popen(['cmd', '/c', 'python', script_path
                                    , str(num_thread)
+                                   , method
                                    , dataset_filename
                                    , filename_part
                                    , result_filename
@@ -32,24 +27,27 @@ def research_thread(num_thread, result_filename, filename_part):
 
 
 def main():
-    x = 2
-    y = 3
-    init_dist_x = 0
-    init_dist_y = 50
-    init_density_x = 1
-    init_density_y = 10001
-    label = 'gauss-newton '
-    label += 'init_dist_x=' + str(init_dist_x) + ' '
-    label += 'init_dist_y=' + str(init_dist_y) + ' '
-    label += 'init_density_x=' + str(init_density_x) + ' '
-    label += 'init_density_y=' + str(init_density_y) + ' '
+    result_name = '3'
+    params = {
+        'dataset_name': '1',
+        'method': 'gauss-newton',
+        'init_dist_x': 0,
+        'init_dist_y': 10,
+        'init_density_x': 1,
+        'init_density_y': 1000
+    }
+    count_threads = max(cpu_count() - 2, 1)
+
+    script_path = 'one_thread_research.py'
+    dataset_params = helper.get_params_dataset(params['dataset_name'])
+    dataset_filename = helper.get_filenames_datasets()[params['dataset_name']]
 
     start = time.perf_counter()
     print(f'Start Research')
-    print(f'params: init_dist_x {init_dist_x}, init_dist_y {init_dist_y}, init_density_x {init_density_x}, init_density_y {init_density_y}')
+    print('params', params)
     print('Generate linspace')
-    init_x = np.linspace(x - init_dist_x, x + init_dist_x, init_density_x)
-    init_y = np.linspace(y - init_dist_y, y + init_dist_y, init_density_y)
+    init_x = np.linspace(dataset_params['w0'] - params['init_dist_x'], dataset_params['w0'] + params['init_dist_x'], params['init_density_x'])
+    init_y = np.linspace(dataset_params['w1'] - params['init_dist_y'], dataset_params['w1'] + params['init_dist_y'], params['init_density_y'])
     print('Generate meshgrid')
     X, Y = np.meshgrid(init_x, init_y)
     print('Generate combined')
@@ -64,12 +62,13 @@ def main():
         helper.save_matrix(split_parts[i], filenames_parts[i])
         results_filenames.append('result ' + str(i))
 
-    print(f'Scheduling tasks - {init_density_x * init_density_y * test_count}')
+    count_tasks = params['init_density_x'] * params['init_density_y'] * dataset_params['test_count']
+    print(f'Scheduling tasks - {count_tasks}')
     with ProcessPoolExecutor() as executor:
         futures = []
 
         for i in range(count_threads):
-            executor.submit(research_thread, i, results_filenames[i], filenames_parts[i])
+            executor.submit(research_thread, i, script_path, dataset_filename, params['method'], results_filenames[i], filenames_parts[i])
 
         for future in concurrent.futures.as_completed(futures):
             num_thread = future.result()
@@ -86,7 +85,8 @@ def main():
         os.remove(file_path)
 
     results = np.concatenate((*results,))
-    helper.save_matrix(results, 'result ' + label + dataset_filename)
+    helper.save_matrix(results, 'temp')
+    helper.add_result(result_name, params, 'temp')
 
     finish = time.perf_counter()
     print(f'It took {finish - start: .2f} second(s) to finish')

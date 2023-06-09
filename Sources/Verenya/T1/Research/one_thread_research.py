@@ -48,7 +48,20 @@ def gauss_newton_fast(x, y, initial_params, max_iter=100, epsilon=2e-2, delta=1e
     return params, max_iter
 
 
-def main(num_thread, dataset_filename, filename_part, result_filename):
+def get_func(argument):
+    switch_dict = {
+        'gauss-newton': gauss_newton_fast,
+    }
+
+    result = switch_dict.get(argument)
+    if result is None:
+        raise ValueError("Unknown method")
+    
+    return result
+    
+
+def main(num_thread, method, dataset_filename, filename_part, result_filename):
+    func = get_func(method)
     X, Y, datasets = helper.load_datasets(dataset_filename)
     current_part = helper.load_matrix(filename_part)
 
@@ -68,7 +81,7 @@ def main(num_thread, dataset_filename, filename_part, result_filename):
             sum_step_count = 0
             init_weights = np.array([current_part[i][0], current_part[i][1]], dtype=float)
             for k in range(test_count):
-                result_weights, count_step = gauss_newton_fast(datasets_X[k], datasets_Y[k], init_weights
+                result_weights, count_step = func(datasets_X[k], datasets_Y[k], init_weights
                                                                , epsilon=2e-2, max_iter=100)
                 # result_loss = mse_loss(datasets_X[k], datasets_Y[k], result_weights, f)
                 # sum_mse_result += result_loss
@@ -92,6 +105,7 @@ if __name__ == '__main__':
              , args[1]
              , args[2]
              , args[3]
+             , args[4]
              )
 
         print("End", args[0])
