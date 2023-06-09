@@ -87,3 +87,7 @@ svg-inkscape/
 *old*.ipynb
 *old*.py
 *old*.txt
+
+*temp*.ipynb
+*temp*.py
+*temp*.txt
