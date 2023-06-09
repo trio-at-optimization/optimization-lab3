@@ -1,11 +1,8 @@
-import numpy as np
+from matplotlib import pyplot as plt
 import math
 import copy
-
-
-def func_without_f(x, w):
-    return w[0] * np.sin(x ** 2) + np.cos(w[1] * x)
-    # return (1 - x * w[0]) ** 2 + 100 * (x * w[1] - x ** 2) ** 2
+import numpy as np
+from dataset_generator import Generator
 
 
 def func(X, Y, w, j):
@@ -15,13 +12,10 @@ def func(X, Y, w, j):
     return func_without_f(x, w) - f
 
 
-def objF(X, Y, w):
-    obj = np.zeros(len(X))
-
-    for i in range(len(X)):
-        obj[i] = func(X, Y, w, i)
-
-    return obj
+def func_without_f(x, w):
+    return_value = np.sin(w[0] * x + w[1])
+    return return_value
+    # return w[0] * np.sin(x ** 2) + np.cos(w[1] * x)
 
 
 def derivative(X, Y, w, i, j, delta=1e-6):
@@ -50,28 +44,27 @@ def jacobian(X, Y, w):
     return Jac
 
 
-def dog_leg(X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-12, e3=1e-12):
-    result = [initial_params]
+def dog_leg(f, X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-12, e3=1e-12):
     current_params = np.copy(initial_params)
 
-    obj = objF(X, Y, current_params)
+    obj = f(X, current_params) - Y
     Jac = jacobian(X, Y, current_params)
     gradient = Jac.T @ obj
 
     if np.linalg.norm(obj) <= e3 or np.linalg.norm(gradient) <= e1:
-        return
+        return current_params, -1
 
-    for i in range(max_iter):
-        obj = objF(X, Y, current_params)
+    for iteration in range(max_iter):
+        obj = f(X, current_params) - Y
         Jac = jacobian(X, Y, current_params)
         gradient = Jac.T @ obj
 
         if np.linalg.norm(gradient) <= e1:
             print("stop F'(x) = g(x) = 0 for a global minimizer optimizer.")
-            break
+            return current_params, iteration
         elif np.linalg.norm(obj) <= e3:
             print("stop f(x) = 0 for f(x) is so small")
-            break
+            return current_params, iteration
 
         alpha = np.linalg.norm(gradient, 2) / np.linalg.norm(Jac * gradient, 2)
         stepest_descent = -alpha * gradient
@@ -91,26 +84,24 @@ def dog_leg(X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-12,
 
             if c <= 0:
                 beta = (math.sqrt(
-                    c * c + np.linalg.norm(b - a, 2) * (
-                                radius * radius - np.linalg.norm(a, 2))) - c) / np.linalg.norm(
+                    c * c + np.linalg.norm(b - a, 2) * (radius * radius - np.linalg.norm(a, 2))) - c) / np.linalg.norm(
                     b - a, 2)
             else:
                 beta = (radius * radius - np.linalg.norm(a, 2)) / (
-                        math.sqrt(
-                            c * c + np.linalg.norm(b - a, 2) * abs(radius * radius - np.linalg.norm(a, 2))) - c)
+                        math.sqrt(c * c + np.linalg.norm(b - a, 2) * abs(radius * radius - np.linalg.norm(a, 2))) - c)
             dog_leg = alpha * stepest_descent + (gauss_newton - alpha * stepest_descent) * beta
 
         print(f'dog-leg: {dog_leg}')
 
         if np.linalg.norm(dog_leg) <= e2 * (np.linalg.norm(current_params) + e2):
-            break
+            return current_params, iteration
 
         new_params = current_params + dog_leg
 
         print(f'new parameter is: {new_params}\n')
 
-        obj = objF(X, Y, current_params)
-        obj_new = objF(X, Y, new_params)
+        obj = f(X, current_params) - Y
+        obj_new = f(X, new_params) - Y
 
         deltaF = np.linalg.norm(obj, 2) / 2 - np.linalg.norm(obj_new, 2) / 2
 
@@ -127,13 +118,11 @@ def dog_leg(X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-12,
 
             if c <= 0:
                 beta = (math.sqrt(
-                    c * c + np.linalg.norm(b - a, 2) * (
-                                radius * radius - np.linalg.norm(a, 2))) - c) / np.linalg.norm(
+                    c * c + np.linalg.norm(b - a, 2) * (radius * radius - np.linalg.norm(a, 2))) - c) / np.linalg.norm(
                     b - a, 2)
             else:
                 beta = (radius * radius - np.linalg.norm(a, 2)) / (
-                        math.sqrt(
-                            c * c + np.linalg.norm(b - a, 2) * abs(radius * radius - np.linalg.norm(a, 2))) - c)
+                        math.sqrt(c * c + np.linalg.norm(b - a, 2) * abs(radius * radius - np.linalg.norm(a, 2))) - c)
 
             delta_l = alpha * (1 - beta) * (1 - beta) * np.linalg.norm(gradient, 2) / 2.0 + beta * (
                         2.0 - beta) * np.linalg.norm(obj, 2) / 2
@@ -149,9 +138,6 @@ def dog_leg(X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-12,
 
             if radius <= e2 * (np.linalg.norm(current_params) + e2):
                 print("trust region radius is too small.")
-                break
+                return current_params, iteration
 
-        result.append(current_params)
-        print(f'radius: {radius}')
-
-    return result
+    return current_params, max_iter
