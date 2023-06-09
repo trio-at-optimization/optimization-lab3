@@ -1,8 +1,6 @@
-from matplotlib import pyplot as plt
 import math
 import copy
 import numpy as np
-from dataset_generator import Generator
 
 
 def func(f, X, Y, w, j):
@@ -25,7 +23,7 @@ def derivative(f, X, Y, w, i, j, delta=1e-6):
     return (obj2 - obj1) / (2 * delta)
 
 
-def jacobian(f, X, Y, w):
+def jacobian(f, X, Y, w, delta):
     rowNum = len(X)
     colNum = len(w)
 
@@ -33,16 +31,21 @@ def jacobian(f, X, Y, w):
 
     for i in range(rowNum):
         for j in range(colNum):
-            Jac[i][j] = derivative(f, X, Y, w, j, i)
+            Jac[i][j] = derivative(f, X, Y, w, j, i, delta)
 
     return Jac
 
 
-def dog_leg(f, X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-12, e3=1e-12):
+def dog_leg(f, X, Y, initial_params, max_iter=100, epsilon=2e-2, delta=1e-6):
+    radius = 1.0
+    e1 = epsilon # 1e-12
+    e2 = epsilon # 1e-12
+    e3 = epsilon # 1e-12
+
     current_params = np.copy(initial_params)
 
     obj = f(X, current_params) - Y
-    Jac = jacobian(f, X, Y, current_params)
+    Jac = jacobian(f, X, Y, current_params, delta)
     gradient = Jac.T @ obj
 
     if np.linalg.norm(obj) <= e3 or np.linalg.norm(gradient) <= e1:
@@ -50,14 +53,14 @@ def dog_leg(f, X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-
 
     for iteration in range(max_iter):
         obj = f(X, current_params) - Y
-        Jac = jacobian(f, X, Y, current_params)
+        Jac = jacobian(f, X, Y, current_params, delta)
         gradient = Jac.T @ obj
 
         if np.linalg.norm(gradient) <= e1:
-            print("stop F'(x) = g(x) = 0 for a global minimizer optimizer.")
+            # print("stop F'(x) = g(x) = 0 for a global minimizer optimizer.")
             return current_params, iteration
         elif np.linalg.norm(obj) <= e3:
-            print("stop f(x) = 0 for f(x) is so small")
+            # print("stop f(x) = 0 for f(x) is so small")
             return current_params, iteration
 
         alpha = np.linalg.norm(gradient, 2) / np.linalg.norm(Jac * gradient, 2)
@@ -77,22 +80,22 @@ def dog_leg(f, X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-
             c = a.T @ (b - a)
 
             if c <= 0:
-                beta = (math.sqrt(
-                    c * c + np.linalg.norm(b - a, 2) * (radius * radius - np.linalg.norm(a, 2))) - c) / np.linalg.norm(
+                beta = (math.sqrt(math.fabs(
+                    c * c + np.linalg.norm(b - a, 2) * (radius * radius - np.linalg.norm(a, 2)))) - c) / np.linalg.norm(
                     b - a, 2)
             else:
                 beta = (radius * radius - np.linalg.norm(a, 2)) / (
                         math.sqrt(c * c + np.linalg.norm(b - a, 2) * abs(radius * radius - np.linalg.norm(a, 2))) - c)
             dog_leg = alpha * stepest_descent + (gauss_newton - alpha * stepest_descent) * beta
 
-        print(f'dog-leg: {dog_leg}')
+        # print(f'dog-leg: {dog_leg}')
 
         if np.linalg.norm(dog_leg) <= e2 * (np.linalg.norm(current_params) + e2):
             return current_params, iteration
 
         new_params = current_params + dog_leg
 
-        print(f'new parameter is: {new_params}\n')
+        # print(f'new parameter is: {new_params}\n')
 
         obj = f(X, current_params) - Y
         obj_new = f(X, new_params) - Y
@@ -111,8 +114,8 @@ def dog_leg(f, X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-
             c = a.T @ (b - a)
 
             if c <= 0:
-                beta = (math.sqrt(
-                    c * c + np.linalg.norm(b - a, 2) * (radius * radius - np.linalg.norm(a, 2))) - c) / np.linalg.norm(
+                beta = (math.sqrt(math.fabs(
+                    c * c + np.linalg.norm(b - a, 2) * (radius * radius - np.linalg.norm(a, 2)))) - c) / np.linalg.norm(
                     b - a, 2)
             else:
                 beta = (radius * radius - np.linalg.norm(a, 2)) / (
@@ -131,7 +134,7 @@ def dog_leg(f, X, Y, initial_params, max_iter=1000, radius=1.0, e1=1e-12, e2=1e-
             radius /= 2.0
 
             if radius <= e2 * (np.linalg.norm(current_params) + e2):
-                print("trust region radius is too small.")
+                # print("trust region radius is too small.")
                 return current_params, iteration
 
     return current_params, max_iter

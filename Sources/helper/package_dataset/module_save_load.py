@@ -62,8 +62,8 @@ Dataset_file_name = 'dataset.txt'
 Result_file_name = 'result.txt'
 
 
-def get_filenames(folder_path, filename):
-    file_paths = glob.glob(folder_path + '/*/' + filename)
+def get_filenames(path, folder_path, filename):
+    file_paths = glob.glob(path + folder_path + '/*/' + filename)
 
     file_dict = {}
 
@@ -74,12 +74,12 @@ def get_filenames(folder_path, filename):
     return file_dict
 
 
-def get_filenames_datasets():
-    return get_filenames(Datasets_folder_name, Dataset_file_name)
+def get_filenames_datasets(path=''):
+    return get_filenames(path, Datasets_folder_name, Dataset_file_name)
 
 
-def get_filenames_results():
-    return get_filenames(Results_folder_name, Result_file_name)
+def get_filenames_results(path=''):
+    return get_filenames(path, Results_folder_name, Result_file_name)
 
 
 def add_folder(folder_path, name, params, current_filename, need_filename):

@@ -11,6 +11,7 @@ import helper
 def get_func_method(argument):
     switch_dict = {
         'gauss-newton': helper.gauss_newton_fast,
+        'dog-leg': helper.dog_leg,
     }
 
     result = switch_dict.get(argument)
