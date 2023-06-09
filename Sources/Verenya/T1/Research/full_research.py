@@ -9,12 +9,13 @@ from multiprocessing import cpu_count
 sys.path.append('../../../')
 import helper
 
-def research_thread(num_thread, script_path, dataset_filename, method, result_filename, filename_part):
+
+def research_thread(num_thread, script_path, dataset_name, method, result_filename, filename_part):
 
     process = subprocess.Popen(['cmd', '/c', 'python', script_path
                                    , str(num_thread)
                                    , method
-                                   , dataset_filename
+                                   , dataset_name
                                    , filename_part
                                    , result_filename
                                 ], creationflags=subprocess.CREATE_NEW_CONSOLE)
@@ -27,20 +28,19 @@ def research_thread(num_thread, script_path, dataset_filename, method, result_fi
 
 
 def main():
-    result_name = '3'
+    result_name = '4'
     params = {
         'dataset_name': '1',
         'method': 'gauss-newton',
         'init_dist_x': 0,
         'init_dist_y': 10,
         'init_density_x': 1,
-        'init_density_y': 1000
+        'init_density_y': 10001
     }
     count_threads = max(cpu_count() - 2, 1)
 
     script_path = 'one_thread_research.py'
     dataset_params = helper.get_params_dataset(params['dataset_name'])
-    dataset_filename = helper.get_filenames_datasets()[params['dataset_name']]
 
     start = time.perf_counter()
     print(f'Start Research')
@@ -68,7 +68,7 @@ def main():
         futures = []
 
         for i in range(count_threads):
-            executor.submit(research_thread, i, script_path, dataset_filename, params['method'], results_filenames[i], filenames_parts[i])
+            executor.submit(research_thread, i, script_path, params['dataset_name'], params['method'], results_filenames[i], filenames_parts[i])
 
         for future in concurrent.futures.as_completed(futures):
             num_thread = future.result()
