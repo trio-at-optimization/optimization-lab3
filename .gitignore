@@ -79,5 +79,11 @@ svg-inkscape/
 *__pycache__
 *.idea
 *.trash
+
 *Test*.ipynb
 *Test*.py
+*Test*.txt
+
+*old*.ipynb
+*old*.py
+*old*.txt

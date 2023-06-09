@@ -1,0 +1,1 @@
+result gauss-newton init_dist_x=0 init_dist_y=50 init_density_x=1 init_density_y=10001 sin(w[0]x + w[1]) weights=[2. 3.] density=8000 dots_count=1000 radius=0.1 dist=2.5 test_count=10.txt
