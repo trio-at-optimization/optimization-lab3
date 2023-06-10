@@ -1,0 +1,10 @@
+{
+    "f_label": "def f(x, w):\n    return (1 - x * w[0]) ** 2 + 100 * (x * w[1] - x ** 2) ** 2\n",
+    "density": 8000,
+    "dots_count": 1000,
+    "radius": 0.001,
+    "dist": 0.01,
+    "w0": 2,
+    "w1": 3,
+    "test_count": 10
+}

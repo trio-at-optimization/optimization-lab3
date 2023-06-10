@@ -4,7 +4,6 @@ import sys
 import os
 import numpy as np
 import concurrent.futures
-import json
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
 sys.path.append('../../../')
@@ -35,11 +34,10 @@ def main():
         'method': 'gauss-newton',
         "init_dist_x": 50,
         "init_dist_y": 0,
-        "init_density_x": 101,
+        "init_density_x": 10001,
         "init_density_y": 1
     }
-    count_threads = max(cpu_count() - 2, 1)
-    count_threads = 4
+    count_threads = max(cpu_count(), 1)
 
     script_path = 'one_thread_research.py'
     dataset_params = helper.get_params_dataset(params['dataset_name'])
@@ -84,23 +82,10 @@ def main():
 
     for file_path in results_filenames:
         combined_list.extend(helper.load_json(file_path))
-        # with open(file_path, 'r') as file:
-        #     data = json.load(file)
-        #     combined_list.extend(data)
         os.remove(file_path)
 
     print(f'Save {len(combined_list)} results')
-    # with open('temp', 'w') as file:
-    #     json.dump(combined_list, file, indent=4)
-    helper.save_json(combined_list, 'temp')
-    # results = []
-    # for file_path in results_filenames:
-    #     result = helper.load_matrix(file_path)
-    #     results.append(result)
-    #     os.remove(file_path)
-    #
-    # results = np.concatenate((*results,))
-    # helper.save_matrix(results, 'temp')
+    helper.save_json(combined_list, 'temp', indent=1)
     helper.add_result(result_name, params, 'temp')
 
     finish = time.perf_counter()

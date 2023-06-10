@@ -29,33 +29,18 @@ def main(num_thread, method, dataset_name, filename_part, result_filename):
 
     results = []
     for i in range(len(current_part)):
-
-        # sum_mse_result = 0
-        # sum_step_count = 0
-        current_point_result = {}
+        current_point_result = {"init_weights": [current_part[i][0], current_part[i][1]], "results": []}
         init_weights = np.array([current_part[i][0], current_part[i][1]], dtype=float)
-        current_point_result["init_weights"] = [current_part[i][0], current_part[i][1]]
-        current_point_result["results"] = []
         for k in range(test_count):
             result_weights, count_step = func_method(f, datasets_X[k], datasets_Y[k], init_weights
                                                            , epsilon=2e-2, max_iter=100)
-            # result_loss = helper.mse_loss(datasets_X[k], datasets_Y[k], result_weights, f)
             current_point_result["results"].append([result_weights.tolist(), count_step])
-            # sum_mse_result += result_loss
-            # sum_step_count += count_step
             progress_bar.update(1)
-
-        # sum_mse_result /= test_count
-        # sum_step_count /= test_count
 
         results.append(current_point_result)
 
-    # results = np.array(results)
     progress_bar.close()
-    # helper.save_matrix(results, result_filename)
-    helper.save_json(results, result_filename)
-    # with open(result_filename, 'w') as file:
-    #     json.dump(results, file, indent=4)
+    helper.save_json(results, result_filename, indent=0)
 
 
 if __name__ == '__main__':

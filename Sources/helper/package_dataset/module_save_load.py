@@ -54,9 +54,9 @@ def load_matrix(filename):
     return result_matrix
 
 
-def save_json(data, filename):
+def save_json(data, filename, indent=4):
     with open(filename, "w") as file:
-        json.dump(data, file, indent=4)
+        json.dump(data, file, indent=indent)
 
 
 def load_json(filename):
