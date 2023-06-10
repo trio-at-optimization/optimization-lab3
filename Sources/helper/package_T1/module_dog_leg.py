@@ -36,8 +36,7 @@ def jacobian(f, X, Y, w, delta):
     return Jac
 
 
-def dog_leg(f, X, Y, initial_params, max_iter=100, epsilon=2e-2, delta=1e-6):
-    radius = 1.0
+def dog_leg(f, X, Y, initial_params, max_iter=100, epsilon=2e-2, delta=1e-6, radius=1.5):
     e1 = epsilon # 1e-12
     e2 = epsilon # 1e-12
     e3 = epsilon # 1e-12
@@ -57,10 +56,10 @@ def dog_leg(f, X, Y, initial_params, max_iter=100, epsilon=2e-2, delta=1e-6):
         gradient = Jac.T @ obj
 
         if np.linalg.norm(gradient) <= e1:
-            # print("stop F'(x) = g(x) = 0 for a global minimizer optimizer.")
+            print("stop F'(x) = g(x) = 0 for a global minimizer optimizer.")
             return current_params, iteration
         elif np.linalg.norm(obj) <= e3:
-            # print("stop f(x) = 0 for f(x) is so small")
+            print("stop f(x) = 0 for f(x) is so small")
             return current_params, iteration
 
         alpha = np.linalg.norm(gradient, 2) / np.linalg.norm(Jac * gradient, 2)
@@ -88,14 +87,14 @@ def dog_leg(f, X, Y, initial_params, max_iter=100, epsilon=2e-2, delta=1e-6):
                         math.sqrt(c * c + np.linalg.norm(b - a, 2) * abs(radius * radius - np.linalg.norm(a, 2))) - c)
             dog_leg = alpha * stepest_descent + (gauss_newton - alpha * stepest_descent) * beta
 
-        # print(f'dog-leg: {dog_leg}')
+        print(f'dog-leg: {dog_leg}')
 
         if np.linalg.norm(dog_leg) <= e2 * (np.linalg.norm(current_params) + e2):
             return current_params, iteration
 
         new_params = current_params + dog_leg
 
-        # print(f'new parameter is: {new_params}\n')
+        print(f'new parameter is: {new_params}\n')
 
         obj = f(X, current_params) - Y
         obj_new = f(X, new_params) - Y
@@ -134,7 +133,7 @@ def dog_leg(f, X, Y, initial_params, max_iter=100, epsilon=2e-2, delta=1e-6):
             radius /= 2.0
 
             if radius <= e2 * (np.linalg.norm(current_params) + e2):
-                # print("trust region radius is too small.")
+                print("trust region radius is too small.")
                 return current_params, iteration
 
     return current_params, max_iter

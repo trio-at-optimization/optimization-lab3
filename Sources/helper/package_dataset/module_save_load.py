@@ -96,8 +96,8 @@ def add_result(name, params, current_filename):
     add_folder(Results_folder_name, name, params, current_filename, Result_file_name)
 
 
-def get_params(folder_path, name):
-    file_path = folder_path + "/" + name + "/" + "params.json"
+def get_params(folder_path, name, path):
+    file_path = path + folder_path + "/" + name + "/" + "params.json"
 
     with open(file_path, "r") as json_file:
         parameters = json.load(json_file)
@@ -105,12 +105,12 @@ def get_params(folder_path, name):
     return parameters
 
 
-def get_params_dataset(name):
-    return get_params(Datasets_folder_name, name)
+def get_params_dataset(name, path=''):
+    return get_params(Datasets_folder_name, name, path)
 
 
-def get_params_results(name):
-    return get_params(Results_folder_name, name)
+def get_params_results(name, path=''):
+    return get_params(Results_folder_name, name, path)
 
 
 def set_params(folder_path, params, name):

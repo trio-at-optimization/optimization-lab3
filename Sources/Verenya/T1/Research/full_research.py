@@ -28,14 +28,14 @@ def research_thread(num_thread, script_path, dataset_name, method, result_filena
 
 
 def main():
-    result_name = '4'
+    result_name = '7'
     params = {
         'dataset_name': '1',
         'method': 'gauss-newton',
-        'init_dist_x': 0,
-        'init_dist_y': 10,
-        'init_density_x': 1,
-        'init_density_y': 10001
+        "init_dist_x": 4,
+        "init_dist_y": 0,
+        "init_density_x": 101,
+        "init_density_y": 1
     }
     count_threads = max(cpu_count() - 2, 1)
 

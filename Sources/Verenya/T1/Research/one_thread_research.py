@@ -1,39 +1,17 @@
 import sys
 import time
 import traceback
-import types
 import numpy as np
 from tqdm import tqdm
 sys.path.append('../../../')
 import helper
 
 
-def get_func_method(argument):
-    switch_dict = {
-        'gauss-newton': helper.gauss_newton_fast,
-        'dog-leg': helper.dog_leg,
-    }
-
-    result = switch_dict.get(argument)
-    if result is None:
-        raise ValueError("Unknown method")
-    
-    return result
-
-
-def get_func_research(f_label):
-    compiled_function = compile(f_label, "<string>", "exec")
-    exec(compiled_function)
-
-    # Создаем объект функции из скомпилированного кода
-    return types.FunctionType(compiled_function.co_consts[0], globals())
-
-
 def main(num_thread, method, dataset_name, filename_part, result_filename):
-    func_method = get_func_method(method)
+    func_method = helper.get_func_method(method)
     dataset_params = helper.get_params_dataset(dataset_name)
     dataset_filename = helper.get_filenames_datasets()[dataset_name]
-    f = get_func_research(dataset_params['f_label'])
+    f = helper.get_func_research(dataset_params['f_label'])
 
     X, Y, datasets = helper.load_datasets(dataset_filename)
     current_part = helper.load_matrix(filename_part)
@@ -50,19 +28,19 @@ def main(num_thread, method, dataset_name, filename_part, result_filename):
 
     results = []
     for i in range(len(current_part)):
-            # sum_mse_result = 0
-            sum_step_count = 0
+            sum_mse_result = 0
+            # sum_step_count = 0
             init_weights = np.array([current_part[i][0], current_part[i][1]], dtype=float)
             for k in range(test_count):
                 result_weights, count_step = func_method(f, datasets_X[k], datasets_Y[k], init_weights
                                                                , epsilon=2e-2, max_iter=100)
-                # result_loss = mse_loss(datasets_X[k], datasets_Y[k], result_weights, f)
-                # sum_mse_result += result_loss
-                sum_step_count += count_step
+                result_loss = helper.mse_loss(datasets_X[k], datasets_Y[k], result_weights, f)
+                sum_mse_result += result_loss
+                # sum_step_count += count_step
                 progress_bar.update(1)
-            # sum_mse_result /= test_count
-            sum_step_count /= test_count
-            results.append(np.append(current_part[i], sum_step_count))
+            sum_mse_result /= test_count
+            # sum_step_count /= test_count
+            results.append(np.append(current_part[i], sum_mse_result))
 
     results = np.array(results)
     progress_bar.close()
