@@ -54,12 +54,23 @@ def load_matrix(filename):
     return result_matrix
 
 
+def save_json(data, filename):
+    with open(filename, "w") as file:
+        json.dump(data, file, indent=4)
+
+
+def load_json(filename):
+    with open(filename, 'r') as file:
+        return json.load(file)
+
+
 # ======================================================================================================================
 Datasets_folder_name = 'Datasets'
 Results_folder_name = 'Results'
 
 Dataset_file_name = 'dataset.txt'
-Result_file_name = 'result.txt'
+Result_file_name = 'result.json'
+Params_file_name = 'params.json'
 
 
 def get_filenames(path, folder_path, filename):
@@ -97,7 +108,7 @@ def add_result(name, params, current_filename):
 
 
 def get_params(folder_path, name, path):
-    file_path = path + folder_path + "/" + name + "/" + "params.json"
+    file_path = path + folder_path + "/" + name + "/" + Params_file_name
 
     with open(file_path, "r") as json_file:
         parameters = json.load(json_file)
@@ -114,7 +125,7 @@ def get_params_results(name, path=''):
 
 
 def set_params(folder_path, params, name):
-    file_path = folder_path + "/" + name + "/" + "params.json"
+    file_path = folder_path + "/" + name + "/" + Params_file_name
 
     with open(file_path, "w") as f:
         json.dump(params, f, indent=4)
