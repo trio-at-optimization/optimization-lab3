@@ -28,17 +28,17 @@ def research_thread(num_thread, script_path, dataset_name, method, result_filena
 
 
 def main():
-    result_name = 'X_100_ADAM'
+    result_name = 'X_100_LBFGS'
     params = {
         'dataset_name': '3',
-        'method': 'adam',   # gauss-newton / dog-leg / adam
+        'method': 'l-bfgs',   # gauss-newton / dog-leg / adam / l-bfgs
         "init_dist_x": 100,
         "init_dist_y": 0,
         "init_density_x": 1001,
         "init_density_y": 1
     }
     count_threads = max(cpu_count(), 1)
-
+    count_threads = 6
     script_path = 'one_thread_research.py'
     dataset_params = helper.get_params_dataset(params['dataset_name'])
 

@@ -3,6 +3,7 @@ import numpy as np
 from ..package_T1 import gauss_newton_fast
 from ..package_T1 import dog_leg
 from ..package_T1 import adam
+from ..package_T1 import lbfgs
 
 
 def get_func_method(argument):
@@ -10,6 +11,7 @@ def get_func_method(argument):
         'gauss-newton': gauss_newton_fast,
         'dog-leg': dog_leg,
         'adam': adam,
+        'l-bfgs': lbfgs,
     }
 
     result = switch_dict.get(argument)
