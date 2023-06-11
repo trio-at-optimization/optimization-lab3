@@ -3,6 +3,6 @@
     "method": "gauss-newton",
     "init_dist_x": 50,
     "init_dist_y": 0,
-    "init_density_x": 10001,
+    "init_density_x": 1001,
     "init_density_y": 1
 }
