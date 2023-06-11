@@ -6,7 +6,6 @@ def gauss_newton_fast(f, X, Y, initial_params, max_iter=100, epsilon=2e-2, delta
 
     for iteration in range(max_iter):
         # ==========================================================================
-
         n_samples, n_features = X.shape[0], len(params)
         jacobian = np.zeros((n_samples, n_features), dtype=float)
 
@@ -32,6 +31,6 @@ def gauss_newton_fast(f, X, Y, initial_params, max_iter=100, epsilon=2e-2, delta
         params += update
 
         if np.linalg.norm(update) < epsilon:
-            return params, iteration
+            return params, iteration + 1
 
-    return params, max_iter
+    return params, max_iter + 1

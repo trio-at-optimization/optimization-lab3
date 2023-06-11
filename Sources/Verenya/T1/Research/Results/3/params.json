@@ -1,7 +1,7 @@
 {
     "dataset_name": "3",
     "method": "gauss-newton",
-    "init_dist_x": 4,
+    "init_dist_x": 100,
     "init_dist_y": 0,
     "init_density_x": 1001,
     "init_density_y": 1

@@ -1,6 +1,6 @@
 {
     "dataset_name": "3",
-    "method": "gauss-newton",
+    "method": "dog-leg",
     "init_dist_x": 4,
     "init_dist_y": 0,
     "init_density_x": 1001,

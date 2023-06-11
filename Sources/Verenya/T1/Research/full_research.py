@@ -28,13 +28,13 @@ def research_thread(num_thread, script_path, dataset_name, method, result_filena
 
 
 def main():
-    result_name = '1'
+    result_name = '3'
     params = {
         'dataset_name': '3',
-        'method': 'gauss-newton',
-        "init_dist_x": 50,
+        'method': 'gauss-newton',   # gauss-newton / dog-leg
+        "init_dist_x": 100,
         "init_dist_y": 0,
-        "init_density_x": 10001,
+        "init_density_x": 1001,
         "init_density_y": 1
     }
     count_threads = max(cpu_count(), 1)
