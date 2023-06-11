@@ -1,0 +1,2 @@
+initial_w = [3, 4]
+Gauss-Newton    ==>   5.532247 in [  1.997695,   2.998286] in 101 steps
