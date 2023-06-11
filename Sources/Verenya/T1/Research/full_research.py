@@ -28,14 +28,14 @@ def research_thread(num_thread, script_path, dataset_name, method, result_filena
 
 
 def main():
-    result_name = 'Y_100_DL'
+    result_name = 'X_100_ADAM'
     params = {
         'dataset_name': '3',
-        'method': 'dog-leg',   # gauss-newton / dog-leg
-        "init_dist_x": 0,
-        "init_dist_y": 100,
-        "init_density_x": 1,
-        "init_density_y": 1001
+        'method': 'adam',   # gauss-newton / dog-leg / adam
+        "init_dist_x": 100,
+        "init_dist_y": 0,
+        "init_density_x": 1001,
+        "init_density_y": 1
     }
     count_threads = max(cpu_count(), 1)
 

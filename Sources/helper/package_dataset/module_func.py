@@ -2,12 +2,14 @@ import types
 import numpy as np
 from ..package_T1 import gauss_newton_fast
 from ..package_T1 import dog_leg
+from ..package_T1 import adam
 
 
 def get_func_method(argument):
     switch_dict = {
         'gauss-newton': gauss_newton_fast,
         'dog-leg': dog_leg,
+        'adam': adam,
     }
 
     result = switch_dict.get(argument)

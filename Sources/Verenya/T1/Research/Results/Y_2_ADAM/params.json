@@ -1,0 +1,8 @@
+{
+    "dataset_name": "3",
+    "method": "adam",
+    "init_dist_x": 0,
+    "init_dist_y": 2,
+    "init_density_x": 1,
+    "init_density_y": 1001
+}
