@@ -80,14 +80,14 @@ svg-inkscape/
 *.idea
 *.trash
 
+# Development and temporary files #
+###################################
 *Test*.ipynb
 *Test*.py
 *Test*.txt
-
 *old*.ipynb
 *old*.py
 *old*.txt
-
 *temp*.ipynb
 *temp*.py
 *temp*.txt
