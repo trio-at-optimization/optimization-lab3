@@ -1,46 +1,31 @@
 \documentclass[12pt, a4paper, oneside, final]{article}
 \usepackage[margin = 1in, bottom = 1in]{geometry}
 
+\pdfminorversion = 5 
+\pdfcompresslevel = 9
+\pdfobjcompresslevel = 2
+
 \usepackage[T2A]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[english, russian]{babel}
-\usepackage{xcolor, ulem, soulutf8, soul, fancyhdr, amsmath, amssymb, amsthm, svg, wrapfig, csvsimple, float, caption, subcaption}
+\usepackage{xcolor, ulem, soulutf8, soul, fancyhdr, amsmath, amssymb, amsthm, svg, wrapfig, csvsimple, float, caption, subcaption, titlesec, hyperref, multicol, listings, tocloft, longtable, skak, stmaryrd, color, minted, tikz}
 \usepackage[shortlabels]{enumitem}
-\usepackage{titlesec, hyperref, multicol, listings}
 \usepackage[most]{tcolorbox}
-\usepackage[makeroom]{cancel}
-\usepackage[most]{tcolorbox}
-\usepackage{tocloft, longtable, skak, stmaryrd, color}
 \usepackage[framemethod = tikz]{mdframed}
 
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-\definecolor{blueish}{rgb}{0.96,0.96,1.0}
-\definecolor{grayblueish}{rgb}{0.97,0.97,0.98}
-\definecolor{transblue}{rgb}{0.9,0.9,0.97}
-\definecolor{transred}{rgb}{0.97,0.9,0.9}
-\definecolor{light-gray}{gray}{0.95}
+\definecolor{codegreen}{rgb}{0, 0.6, 0}
+\definecolor{codegray}{rgb}{0.5, 0.5, 0.5}
+\definecolor{codepurple}{rgb}{0.58, 0, 0.82}
+\definecolor{backcolour}{rgb}{0.95, 0.95, 0.92}
 
-\renewcommand{\figurename}{}
-\addto\captionsrussian{\renewcommand{\figurename}{}}
-\captionsetup[table]{labelformat = empty}
+\hypersetup{colorlinks, citecolor = pink, filecolor = pink, linkcolor = pink, urlcolor = pink}
 
-\hypersetup{
-	colorlinks,
-	citecolor = pink,
-	filecolor = pink,
-	linkcolor = pink,
-	urlcolor = pink
-}
+\everymath{\displaystyle}
+\binoppenalty = 10000
+\relpenalty = 10000
+\sloppy
 
-\lstset{
-	basicstyle = \ttfamily,
-	mathescape
-}
-
-\newtcblisting{mylisting}{
+\newtcblisting{pseudocode}{
 	listing only,
 	breakable,
 	colback = backcolour,
@@ -70,40 +55,42 @@
 	}
 }
 
-\binoppenalty = 10000
-\relpenalty = 10000
-\sloppy
-
 \renewcommand*{\theenumi}{\thesection.\arabic{enumi}}
 \renewcommand*{\theenumii}{\alph{enumii}}
 \renewcommand*{\labelitemi}{\ensuremath{\triangleright}}
+\newcommand*\circled[1]{\tikz[baseline = (char.base)]{
+		\node[shape = circle, draw, inner sep = 2pt] (char) {#1};}}
 
-\everymath{\displaystyle}
-
-\usepackage{tikz}
-\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
-		\node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
-
-\begin{document}
-	\thispagestyle{empty}
-	\vspace*{0.5em}
+\def\cover{
 	\begin{center}
 		{Национальный исследовательский университет ИТМО\\Факультет информационных технологий и программирования\\Прикладная математика и информатика}\\[5.0em]
 		{\Huge \bfseries Методы оптимизации}\\[0.5em]
 		{\large Отчет по лабораторной работе №3}\\[0.5em]
 		\textcolor{gray}{\textlangle Собрано \today\textrangle}
 	\end{center}
+}
+
+\def\officials{
+	\begin{tabular}{ll}
+		\textbf{Работу выполнили:} \\ Бактурин Савелий Филиппович M32331 \\ Вереня Андрей Тарасович M32331 \\ Сотников Максим Владимирович M32331 \vspace*{1em} \\
+		\textbf{Преподаватель:} \\ Шохов Максим Евгеньевич
+	\end{tabular}
+}
+
+\def\firstpage{
+	\thispagestyle{empty}
+	\vspace*{0.5em}
+	\cover
 	\begingroup
-	\def\hd{\begin{tabular}{ll}
-			\textbf{Работу выполнили:} \\ Бактурин Савелий Филиппович M32331 \\ Вереня Андрей Тарасович M32331 \\ Сотников Максим Владимирович M32331 \vspace*{1em} \\
-			\textbf{Преподаватель:} \\ Шохов Максим Евгеньевич
-		\end{tabular}
-	}
 	\vspace*{30em}
-	\newlength{\hdwidth}
-	\settowidth{\hdwidth}{\hd}
-	\hfill\begin{minipage}{\hdwidth}\hd\end{minipage}
+	\newlength{\officialswidth}
+	\settowidth{\officialswidth}{\officials}
+	\hfill\begin{minipage}{\officialswidth}\officials\end{minipage}
 	\endgroup
+}
+
+\begin{document}
+	\firstpage
 	\newpage
 	\section*{Решение задачи нелинейной регрессии}
 	Часто решая задачу создания регрессионной модели мы сталкиваемся с тем, что по жизни очень немногие рассматриваемые функции оказываются не представимы в виде обобщенной линейной зависимости или полиномиальной некоторой конечной степени $k$.
@@ -491,7 +478,7 @@ return $(-1) \cdot r \left\llbracket\equiv H_k \times \nabla{f_{k}}\right\rrbrac
 		\item Все последующие шаги аналогичны с оригинальным BFGS.
 	\end{enumerate}
 	Итак, напишем идейный псевдокод алгоритма L-BFGS.
-	\begin{mylisting}
+	\begin{pseudocode}
 function $\mathtt{is\_convergence}(f : \mathbb{R}^{n} \to \mathbb{R})$:
 	/*$implementation~defined$*/
 
@@ -526,7 +513,7 @@ function $\mathtt{LBFGS}()$:
 		$s_{k} \gets x_{k + 1} - x_{k}$;
 		$y_{k} \gets \nabla{f_{k + 1}} - \nabla{f_{k}}$;
 		q.append($\{x_{k}, y_{k}\}$);
-	\end{mylisting}
+	\end{pseudocode}
 	\subsection*{Пример}
 	Возьмем в качестве примера функцию Растригина, описываемая как $f(\vec{x}) = 10n + \sum\limits_{i = 1}^{n}{\left(x_{i}^{2} - 10 \cdot \cos{(2 \cdot \pi \cdot x_{i})}\right)}$, где $-5.12 \leqslant x_{i} \leqslant 5.12$, $n$~-- исследуемая размерность.
 	Здесь глобальный минимум $f(0, \ldots, 0) = 0$.
